@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Claims Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="page-header">
+    <h1>Claims dashboard</h1>
+    <p class="subtitle">Losses, loss ratio and reporting lag across the commercial book</p>
+  </header>
+
+  <main>
+    <form id="filters" class="filters" aria-label="Filters">
+      <div class="field">
+        <label for="f-state">State</label>
+        <select id="f-state" name="state">
+          <option value="">All states</option>
+          {% for s in states %}<option value="{{ s }}">{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-line">Line of business</label>
+        <select id="f-line" name="line">
+          <option value="">All lines</option>
+          {% for l in lines %}<option value="{{ l }}">{{ l }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-from">Loss date from</label>
+        <input id="f-from" name="from" type="date">
+      </div>
+      <div class="field">
+        <label for="f-to">Loss date to</label>
+        <input id="f-to" name="to" type="date">
+      </div>
+      <button type="reset" class="button">Reset</button>
+    </form>
+
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+
+    <section aria-labelledby="kpi-heading">
+      <h2 id="kpi-heading" class="visually-hidden">Key figures</h2>
+      <ul class="kpis">
+        <li class="kpi"><span class="kpi-label">Claims</span><span class="kpi-value" data-kpi="claim_count">–</span></li>
+        <li class="kpi"><span class="kpi-label">Incurred (paid + reserve)</span><span class="kpi-value" data-kpi="incurred_cents">–</span></li>
+        <li class="kpi"><span class="kpi-label">Earned premium</span><span class="kpi-value" data-kpi="earned_premium_cents">–</span></li>
+        <li class="kpi"><span class="kpi-label">Loss ratio</span><span class="kpi-value" data-kpi="loss_ratio">–</span></li>
+        <li class="kpi"><span class="kpi-label">Avg reporting lag</span><span class="kpi-value" data-kpi="avg_report_lag_days">–</span></li>
+        <li class="kpi"><span class="kpi-label">Open / closed</span><span class="kpi-value" data-kpi="open_closed">–</span></li>
+      </ul>
+    </section>
+
+    <div class="charts">
+      <section class="card" aria-labelledby="monthly-heading">
+        <div class="card-header">
+          <h2 id="monthly-heading">By loss month</h2>
+          <div class="toggle" role="group" aria-label="Monthly measure">
+            <button type="button" data-monthly="incurred_cents" aria-pressed="true">Incurred</button>
+            <button type="button" data-monthly="claim_count" aria-pressed="false">Claim count</button>
+          </div>
+        </div>
+        <div class="chart-box"><canvas id="monthly-chart" role="img" aria-label="Line chart of incurred losses by loss month"></canvas></div>
+        <details class="chart-data">
+          <summary>Show data</summary>
+          <table><thead><tr><th scope="col">Month</th><th scope="col" class="num">Claims</th><th scope="col" class="num">Incurred</th></tr></thead><tbody id="monthly-table"></tbody></table>
+        </details>
+      </section>
+
+      <section class="card" aria-labelledby="lr-heading">
+        <div class="card-header">
+          <h2 id="lr-heading">Loss ratio</h2>
+          <div class="toggle" role="group" aria-label="Group loss ratio by">
+            <button type="button" data-lr="state" aria-pressed="true">By state</button>
+            <button type="button" data-lr="line" aria-pressed="false">By line</button>
+          </div>
+        </div>
+        <div class="chart-box"><canvas id="lr-chart" role="img" aria-label="Bar chart of loss ratio by state"></canvas></div>
+        <details class="chart-data">
+          <summary>Show data</summary>
+          <table><thead><tr><th scope="col" id="lr-group-col">State</th><th scope="col" class="num">Earned premium</th><th scope="col" class="num">Incurred</th><th scope="col" class="num">Loss ratio</th></tr></thead><tbody id="lr-table"></tbody></table>
+        </details>
+      </section>
+    </div>
+
+    <section class="card" aria-labelledby="claims-heading">
+      <div class="card-header">
+        <h2 id="claims-heading">Claims</h2>
+        <div class="field inline">
+          <label for="per-page">Rows</label>
+          <select id="per-page">
+            <option>25</option><option>50</option><option>100</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="claims">
+          <caption class="visually-hidden">Claims matching the filters. Column headers sort the table.</caption>
+          <thead>
+            <tr>
+              <th scope="col" data-sort="claim_id"><button type="button">Claim</button></th>
+              <th scope="col" data-sort="state"><button type="button">State</button></th>
+              <th scope="col" data-sort="line"><button type="button">Line</button></th>
+              <th scope="col" data-sort="loss_date"><button type="button">Loss date</button></th>
+              <th scope="col" data-sort="reported_date"><button type="button">Reported</button></th>
+              <th scope="col" data-sort="report_lag_days" class="num"><button type="button">Lag (days)</button></th>
+              <th scope="col" data-sort="status"><button type="button">Status</button></th>
+              <th scope="col" data-sort="paid_cents" class="num"><button type="button">Paid</button></th>
+              <th scope="col" data-sort="reserve_cents" class="num"><button type="button">Reserve</button></th>
+              <th scope="col" data-sort="incurred_cents" class="num"><button type="button">Incurred</button></th>
+            </tr>
+          </thead>
+          <tbody id="claims-body"></tbody>
+        </table>
+      </div>
+      <nav class="pager" aria-label="Claims pages">
+        <button type="button" class="button" id="prev-page">Previous</button>
+        <span id="page-info" aria-live="polite"></span>
+        <button type="button" class="button" id="next-page">Next</button>
+      </nav>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
