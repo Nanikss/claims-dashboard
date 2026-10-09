@@ -1,8 +1,8 @@
 # Claims Dashboard
 
-[![CI](https://github.com/kumarnenavath5815-cpu/claims-dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/kumarnenavath5815-cpu/claims-dashboard/actions/workflows/ci.yml)
+[![CI](https://github.com/Nanikss/claims-dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/Nanikss/claims-dashboard/actions/workflows/ci.yml)
 
-A small reporting layer for insurance claims data: a **Flask JSON API over SQLite** and a single-page dashboard with KPI tiles, a monthly trend, loss ratio by state or line of business, and a sortable, paged claims table. It sits on top of the same kind of data my [claims pipeline](https://github.com/kumarnenavath5815-cpu/claims-pipeline) publishes (policies and claims for CA/NY/TX/FL across three commercial lines), but it is self-contained and ships its own deterministic sample data (800 policies, 2,000 claims).
+A small reporting layer for insurance claims data: a **Flask JSON API over SQLite** and a single-page dashboard with KPI tiles, a monthly trend, loss ratio by state or line of business, and a sortable, paged claims table. It sits on top of the same kind of data my [claims pipeline](https://github.com/Nanikss/claims-pipeline) publishes (policies and claims for CA/NY/TX/FL across three commercial lines), but it is self-contained and ships its own deterministic sample data (800 policies, 2,000 claims).
 
 **Stack:** Python 3.10+ · Flask · SQL (SQLite) · Chart.js · pytest.
 
